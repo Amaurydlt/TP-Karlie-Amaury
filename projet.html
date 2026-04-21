@@ -17,7 +17,8 @@
 
             // apiService Une fonction qui récupère les données (fetch).
 
-            const apiService = {
+        const apiService = {
+
             async getProduits() {
                 return new Promise(resolve => {
                     setTimeout(() => {
@@ -25,36 +26,23 @@
                             { nom: "TV LED", prix: 400, cat: "Electronique" },
                             { nom: "Micro-onde", prix: 120, cat: "Electromenager" },
                             { nom: "Smartphone", prix: 800, cat: "Electronique" },
-                            { nom: "Lave-linge", prix: 300, cat: "Electromenager" }
+                            { nom: "Lave-linge", prix: 300, cat: "Electromenager" },
+                            { nom: "Ventilateur", prix: 235, cat: "Promotion" },
+                            { nom: "Tabouret", prix: 199, cat: "Promotion" },
+
                         ]);
                     }, 1000);
                 });
+            }, 
 
-                // Fonction qui recupère les données suivant la catégorie.
-                let produits = ["TV LED","Micro-onde", "Smartphone","Lave-linge"];
-let categories = ["Electronique","Electromenager","Electronique","Electromenager"];
-
-function choisirCategorie(categorieRecherchee) {
-    let resultat = [];
-
-    for (let i = 0; i < categories.length; i++) {
-        if (categories[i] === categorieRecherchee) {
-            resultat.push(produits[i]);
-        }
-    }
-
-    return resultat;
-}
-
-console.log(choisirCategorie("Electronique"));
-
+            async getProduitsParCategorie(categorie) {
+                const produits = await this.getProduits();
+                return produits.filter(p => p.cat === categorie);
             }
         };
 
 
-
-
-            // uiManager  Une fonction qui prend les données et les affiche. (DOM)
+                    // uiManager  Une fonction qui prend les données et les affiche. (DOM)
 
         const uiManager = {
             afficherProduits(produits) {
@@ -63,10 +51,13 @@ console.log(choisirCategorie("Electronique"));
 
                 produits.forEach(p => {
                     const item = document.createElement("div");
-                    item.textContent = `Produit: ${p.nom} - Prix: ${p.prix}€`;
 
-                    if (p.cat === "Electronique") {
-                        item.classList.add("electronique");
+                    if (p.cat === "Promotion") {
+                        item.innerHTML = "Produit: " + p.nom + 
+                                        "  Prix: <span class='promo'>" + p.prix + "€ (PROMO)</span>";
+                    } 
+                    else {
+                        item.textContent = "Produit: " + p.nom + "  Prix: " + p.prix + "€";
                     }
 
                     container.appendChild(item);
@@ -74,9 +65,11 @@ console.log(choisirCategorie("Electronique"));
             }
         };
 
-        async function updateEverything() {
-            const produits = await apiService.getProduits();
-            uiManager.afficherProduits(produits);
+
+
+            async function updateEverything() {
+                const produits = await apiService.getProduitsParCategorie("Promotion");
+                uiManager.afficherProduits(produits);
         }
 
         updateEverything();
