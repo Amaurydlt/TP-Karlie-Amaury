@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>StockMaster</title>
+        <style>
+            .promo {
+            color: red;
+            font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Gestion de Stock <h1>
+        <div id="app">
+        </div>
+        <script>
+
+            // apiService Une fonction qui récupère les données (fetch).
+
+            const apiService = {
+            async getProduits() {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve([
+                            { nom: "TV LED", prix: 400, cat: "Electronique" },
+                            { nom: "Micro-onde", prix: 120, cat: "Electromenager" },
+                            { nom: "Smartphone", prix: 800, cat: "Electronique" },
+                            { nom: "Lave-linge", prix: 300, cat: "Electromenager" }
+                        ]);
+                    }, 1000);
+                });
+
+                // Fonction qui recupère les données suivant la catégorie.
+                let produits = ["TV LED","Micro-onde", "Smartphone","Lave-linge"];
+let categories = ["Electronique","Electromenager","Electronique","Electromenager"];
+
+function choisirCategorie(categorieRecherchee) {
+    let resultat = [];
+
+    for (let i = 0; i < categories.length; i++) {
+        if (categories[i] === categorieRecherchee) {
+            resultat.push(produits[i]);
+        }
+    }
+
+    return resultat;
+}
+
+console.log(choisirCategorie("Electronique"));
+
+            }
+        };
+
+
+
+
+            // uiManager  Une fonction qui prend les données et les affiche. (DOM)
+
+        const uiManager = {
+            afficherProduits(produits) {
+                const container = document.getElementById("app");
+                container.innerHTML = "";
+
+                produits.forEach(p => {
+                    const item = document.createElement("div");
+                    item.textContent = `Produit: ${p.nom} - Prix: ${p.prix}€`;
+
+                    if (p.cat === "Electronique") {
+                        item.classList.add("electronique");
+                    }
+
+                    container.appendChild(item);
+                });
+            }
+        };
+
+        async function updateEverything() {
+            const produits = await apiService.getProduits();
+            uiManager.afficherProduits(produits);
+        }
+
+        updateEverything();
+
+        </script>
+    </body>
+</html>
