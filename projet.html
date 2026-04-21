@@ -1,79 +1,122 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>StockMaster</title>
-        <style>
-            .promo {
+<head>
+    <title>StockMaster</title>
+    <style>
+        .promo {
             color: red;
             font-weight: bold;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Gestion de Stock <h1>
-        <div id="app">
-        </div>
-        <script>
-
-            // apiService Une fonction qui récupère les données (fetch).
-
-        const apiService = {
-
-            async getProduits() {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve([
-                            { nom: "TV LED", prix: 400, cat: "Electronique" },
-                            { nom: "Micro-onde", prix: 120, cat: "Electromenager" },
-                            { nom: "Smartphone", prix: 800, cat: "Electronique" },
-                            { nom: "Lave-linge", prix: 300, cat: "Electromenager" },
-                            { nom: "Ventilateur", prix: 235, cat: "Promotion" },
-                            { nom: "Tabouret", prix: 199, cat: "Promotion" },
-
-                        ]);
-                    }, 1000);
-                });
-            }, 
-
-            async getProduitsParCategorie(categorie) {
-                const produits = await this.getProduits();
-                return produits.filter(p => p.cat === categorie);
-            }
-        };
-
-
-                    // uiManager  Une fonction qui prend les données et les affiche. (DOM)
-
-        const uiManager = {
-            afficherProduits(produits) {
-                const container = document.getElementById("app");
-                container.innerHTML = "";
-
-                produits.forEach(p => {
-                    const item = document.createElement("div");
-
-                    if (p.cat === "Promotion") {
-                        item.innerHTML = "Produit: " + p.nom + 
-                                        "  Prix: <span class='promo'>" + p.prix + "€ (PROMO)</span>";
-                    } 
-                    else {
-                        item.textContent = "Produit: " + p.nom + "  Prix: " + p.prix + "€";
-                    }
-
-                    container.appendChild(item);
-                });
-            }
-        };
-
-
-
-            async function updateEverything() {
-                const produits = await apiService.getProduitsParCategorie("Promotion");
-                uiManager.afficherProduits(produits);
         }
 
-        updateEverything();
+    </style>
+</head>
 
-        </script>
-    </body>
+<body>
+
+<h1>Gestion de Stock</h1>
+
+<div id="formContainer">
+    <form id="formProduit">
+        <label>Nom du produit:</label>
+        <input type="text" id="nom" required>
+
+        <label>Prix:</label>
+        <input type="number" id="prix" required>
+
+        <label>Catégorie:</label>
+        <input type="text" id="categorie" required>
+
+        <button type="submit">Ajouter</button>
+    </form>
+</div>
+
+<hr>
+
+<div id="app"></div>
+
+<script>
+
+let produitsStock = [];
+
+const apiService = {
+    async getProduits() {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve([
+                    { nom: "TV LED", prix: 400, cat: "Electronique" },
+                    { nom: "Micro-onde", prix: 120, cat: "Electromenager" },
+                    { nom: "Smartphone", prix: 800, cat: "Electronique" },
+                    { nom: "Lave-linge", prix: 300, cat: "Electromenager" },
+                    { nom: "Ventilateur", prix: 235, cat: "Promotion" },
+                    { nom: "Tabouret", prix: 199, cat: "Promotion" }
+                ]);
+            }, 500);
+        });
+    }
+};
+
+
+const uiManager = {
+
+    afficherProduits(produits) {
+        const container = document.getElementById("app");
+        container.innerHTML = "";
+
+        if (produits.length === 0) {
+            container.innerHTML = "<p>Aucun produit trouvé</p>";
+            return;
+        }
+
+        produits.forEach(p => {
+            const div = document.createElement("div");
+            div.classList.add("product");
+
+            if (p.cat === "Promotion") {
+                div.innerHTML = `
+                    ${p.nom} - 
+                    <span class="promo">${p.prix}€ (PROMO)</span>
+                `;
+            } else {
+                div.textContent = `${p.nom} - ${p.prix}€ (${p.cat})`;
+            }
+
+            if (p.cat === "Electronique") {
+                div.style.fontWeight = "bold";
+            }
+
+            container.appendChild(div);
+        });
+    }
+};
+
+async function init() {
+    produitsStock = await apiService.getProduits();
+    uiManager.afficherProduits(produitsStock);
+}
+
+document.getElementById("formProduit").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const nom = document.getElementById("nom").value;
+    const prix = document.getElementById("prix").value;
+    const categorie = document.getElementById("categorie").value;
+
+    const nouveauProduit = {
+        nom,
+        prix,
+        cat: categorie
+    };
+
+    produitsStock.push(nouveauProduit);
+
+    uiManager.afficherProduits(produitsStock);
+
+    this.reset();
+});
+
+init();
+
+</script>
+
+</body>
 </html>
